@@ -1,0 +1,49 @@
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.test
+.env.local
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Coverage directory from testing tools like Jest
+coverage/
+
+# Build artifacts
+dist/
+build/
+
+# IDEs
+.vscode/
+.idea/
+
+# Optional npm cache directory
+.npm/
+
+# Optional eslint cache
+.eslintcache
+
+# Debug folder for VSCode
+.vscode/
+
+# TypeScript
+*.tsbuildinfo
+
+# PM2 process files
+pids/
+*.pid
+*.seed
+
+# Misc
+*.tgz
