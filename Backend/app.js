@@ -20,8 +20,8 @@ const bookingRouter = require('./routes/bookingRoutes');
 const app = express();
 app.use(
   cors({
-    origin: 'http://localhost:5173', // your frontend origin
-    credentials: true, // allow cookies to be sent
+    origin: 'https://sweet-gelato-749fc9.netlify.app',
+    credentials: true,
   }),
 );
 app.use(cookieParser());

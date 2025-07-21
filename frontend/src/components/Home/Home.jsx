@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance";
 
 const Home = () => {
   const [tourData, setTourData] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/api/v1/tours")
-      .then((res) => setTourData(res.data.data.data));
+    axiosInstance.get(`/tours`).then((res) => setTourData(res.data.data.data));
   }, []);
   if (!tourData) return <p>Loading...</p>;
   return (
