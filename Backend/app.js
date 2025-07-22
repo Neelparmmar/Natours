@@ -18,10 +18,11 @@ const bookingController = require('./controllers/bookingController');
 const app = express();
 app.use(
   cors({
-    origin: 'https://sweet-gelato-749fc9.netlify.app',
+    origin: 'https://natours-zeta-peach.vercel.app',
     credentials: true,
   }),
 );
+
 // app.use(cors({ origin: true, credentials: true }));
 
 app.use(cookieParser());
