@@ -62,7 +62,7 @@ const Header = () => {
             </Link>
             <Link to="/user-profile" className="nav__el">
               <img
-                src={`${API_URL}/img/users/${user.photo}`}
+                src={`https://natours-ri32.onrender.com/img/users/${user.photo}`}
                 alt="User photo"
                 className="nav__user-img"
                 style={{ width: "50px", height: "50px" }}
