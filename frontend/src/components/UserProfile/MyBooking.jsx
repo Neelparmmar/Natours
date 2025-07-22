@@ -1,16 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import axiosInstance from "./../../utils/axiosInstance";
+import { UserContext } from "../Context/userContext";
+import { Link } from "react-router-dom";
 
 const MyBooking = () => {
   const [tourData, setTourData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const { setBookedTours } = useContext(UserContext);
   useEffect(() => {
     const fetchBookings = async () => {
       try {
         const res = await axiosInstance.get("/bookings/myBookings");
         setTourData(res.data.data.tours); // assuming it's an array of tours
+        setBookedTours(res.data.data.tours.map((t) => t._id));
       } catch (err) {
         setError(err.response?.data?.message || "Error fetching bookings");
       } finally {
@@ -19,7 +22,7 @@ const MyBooking = () => {
     };
 
     fetchBookings();
-  }, []);
+  }, [setBookedTours]);
 
   if (loading) return <div>Loading bookings...</div>;
   if (error) return <div style={{ color: "red" }}>❌ {error}</div>;
@@ -95,12 +98,12 @@ const MyBooking = () => {
                   rating ({tour.ratingsQuantity})
                 </span>
               </p>
-              <a
-                href={`/tours/${tour._id}`}
+              <Link
+                to={`/tours/${tour._id}`}
                 className="btn btn--green btn--small"
               >
                 Details
-              </a>
+              </Link>
             </div>
           </div>
         ))}

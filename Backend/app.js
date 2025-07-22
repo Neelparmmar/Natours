@@ -8,22 +8,22 @@ const helmet = require('helmet');
 const path = require('path');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
-
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorConroller');
-
 const TourRoute = require('./routes/tourRoutes');
 const UserRoute = require('./routes/userRoutes');
 const ReviewRoute = require('./routes/reviewRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
-
+const bookingController = require('./controllers/bookingController');
 const app = express();
-app.use(
-  cors({
-    origin: 'https://sweet-gelato-749fc9.netlify.app',
-    credentials: true,
-  }),
-);
+// app.use(
+//   cors({
+//     origin: "https://sweet-gelato-749fc9.netlify.app",
+//     credentials: true,
+//   })
+// );
+app.use(cors({ origin: true, credentials: true }));
+
 app.use(cookieParser());
 
 // 1. Set Security HTTP headers
@@ -42,6 +42,11 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  bookingController.webHooksCheckOut,
+);
 // 4. Body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
 app.use(cookieParser());

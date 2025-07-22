@@ -1,0 +1,121 @@
+.review-main {
+  padding: 36px 0 0 0;
+  background: #f7faf9;
+  min-height: 100vh;
+}
+
+.review-heading {
+  text-align: left;
+  color: #28b485;
+  margin: 0 0 30px 52px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  font-size: 1.7rem;
+}
+
+.reviews-list {
+  max-width: 760px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.review-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 30px rgba(40, 180, 133, 0.1);
+  display: flex;
+  flex-direction: column;
+  padding: 22px 38px 18px 26px;
+  position: relative;
+  transition: box-shadow 0.2s, transform 0.15s;
+  min-height: 137px;
+}
+
+.review-card:hover {
+  box-shadow: 0 8px 48px rgba(40, 180, 133, 0.18);
+  transform: translateY(-2px) scale(1.01);
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.tour-img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 11px;
+  border: 2px solid #e6f3ed;
+  background: #eaf7f2;
+  box-shadow: 0 2px 12px #28b48513;
+}
+
+.tour-name {
+  color: #23ad7c;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+  letter-spacing: 0.8px;
+  display: inline-block;
+}
+
+.review-rating {
+  font-size: 0.99rem;
+  color: #ffd700;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.review-body {
+  font-size: 1rem;
+  color: #184f3d;
+  margin: 12px 0 6px 82px;
+  line-height: 1.3;
+  min-height: 22px;
+  /* align with left side of text in header */
+}
+
+.review-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 82px;
+  margin-top: 2px;
+  font-size: 0.98rem;
+}
+
+.user-photo {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1.5px solid #d3f3e5;
+}
+
+.user-name {
+  color: #23ad7c;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.review-date {
+  margin-left: auto;
+  color: #b6bcb9;
+  font-size: 0.98rem;
+  font-weight: 400;
+  position: absolute;
+  bottom: 18px;
+  right: 36px;
+}
+
+.review-loading,
+.review-empty {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #28b485;
+  margin: 44px auto;
+}

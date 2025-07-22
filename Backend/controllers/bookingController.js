@@ -4,6 +4,7 @@ const catchAsync = require('../utils/catchAsync');
 const Booking = require('../models/bookingModel');
 // const ApiError = require('../utils/appError');
 const factory = require('./handleFactory');
+const User = require('../models/userModel');
 
 exports.getCheckOutSession = catchAsync(async (req, res, next) => {
   // 1) Get the currently booked tour
@@ -13,7 +14,7 @@ exports.getCheckOutSession = catchAsync(async (req, res, next) => {
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     mode: 'payment', // <== Required by modern API
-    success_url: `${process.env.FRONTEND_BASE_URL}/createBookingCheckout?tour=${req.params.tourId}&user=${req.user.id}&price=${tour.price}`,
+    success_url: `${process.env.FRONTEND_BASE_URL}/my-booking`,
     cancel_url: `${process.env.FRONTEND_BASE_URL}/tour/${tour.slug}`,
     customer_email: req.user.email,
     client_reference_id: req.params.tourId,
@@ -40,29 +41,35 @@ exports.getCheckOutSession = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createBookingCheckout = catchAsync(async (req, res, next) => {
-  const { tour, user, price } = req.query;
-  if (!tour || !user || !price) return next();
+const createBookingcheckout = async (session) => {
+  const tour = session.client_reference_id;
+  const user = (await User.findOne({ email: session.customer_email })).id;
+  const price = session.amount_total / 100; // ✅ Use amount_total instead of line_items (not available by default)
 
   await Booking.create({ tour, user, price });
+};
 
-  res.redirect(req.originalUrl.split('?')[0]);
-});
-exports.getMyTour = catchAsync(async (req, res, next) => {
-  const bookings = await Booking.find({ user: req.user.id });
+exports.webHooksCheckOut = async (req, res, next) => {
+  const sig = req.headers['stripe-signature'];
 
-  const tourIds = bookings.map((el) => el.tour);
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET, // ✅ FIXED
+    );
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
 
-  const tours = await Tour.find({ _id: { $in: tourIds } });
+  if (event.type === 'checkout.session.completed') {
+    await createBookingcheckout(event.data.object); // ✅ await to handle async properly
+  }
 
-  res.status(200).json({
-    status: 'success',
-    results: tours.length,
-    data: {
-      tours,
-    },
-  });
-});
+  res.status(200).json({ received: true });
+};
 
 exports.getAllBooking = factory.getAll(Booking);
 exports.createBooking = factory.createOne(Booking);

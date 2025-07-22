@@ -8,18 +8,9 @@ const Header = () => {
   const { user, setUser } = useContext(UserContext);
   useEffect(() => {
     if (!user) {
-      axiosInstance
-        .get("/users/me")
-        .then((res) => {
-          setUser(res.data.data.data);
-        })
-        .catch((err) => {
-          if (err.response?.status === 401) {
-            // console.log("Not logged in");
-          } else {
-            // console.error("Error fetching user:", err);
-          }
-        });
+      axiosInstance.get("/users/me").then((res) => {
+        setUser(res.data.data.data);
+      });
     }
   }, [user, setUser]);
   const handleLogout = async (e) => {
@@ -29,7 +20,7 @@ const Header = () => {
       setUser(null); // Clear context
       toast.success("Logged Out Successfully");
       // navigate("/login"); // Optional: redirect to login or home
-    } catch (err) {
+    } catch {
       // console.error("Logout failed:", err);
       toast.error("Logout Failed");
     }
@@ -41,19 +32,21 @@ const Header = () => {
         <Link to="/" className="nav__el">
           All tours
         </Link>
-        <form className="nav__search">
-          <button className="nav__search-btn">
-            <svg>
-              <use xlinkHref="/img/icons.svg#icon-search"></use>{" "}
-              {/* ✅ Correct attribute */}
-            </svg>
-          </button>
-          <input
-            type="text"
-            placeholder="Search tours"
-            className="nav__search-input"
-          />
-        </form>
+        {user && (
+          <form className="nav__search">
+            <button className="nav__search-btn">
+              <svg>
+                <use xlinkHref="/img/icons.svg#icon-search"></use>{" "}
+                {/* ✅ Correct attribute */}
+              </svg>
+            </button>
+            <input
+              type="text"
+              placeholder="Search tours"
+              className="nav__search-input"
+            />
+          </form>
+        )}
       </nav>
 
       <div className="header__logo">

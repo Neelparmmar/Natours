@@ -3,12 +3,18 @@ import { useNavigate, useParams } from "react-router-dom";
 import TourMap from "./TourMap";
 import axiosInstance from "../../utils/axiosInstance";
 import { UserContext } from "../Context/userContext";
+import { toast } from "react-toastify";
 
 const TourDetail = () => {
   const { id } = useParams();
   const [tour, setTour] = useState(null);
+  const [reviewText, setReviewText] = useState("");
+  const [rating, setRating] = useState(0);
+  const [hasReviewed, setHasReviewed] = useState(false);
   const [isLoading, setisLoading] = useState(false);
-  const { user } = useContext(UserContext);
+
+  const { user, bookedTours } = useContext(UserContext);
+  const isBooked = bookedTours?.includes(id);
   const navigate = useNavigate();
   useEffect(() => {
     const key = localStorage.getItem("token");
@@ -17,19 +23,74 @@ const TourDetail = () => {
         Authorization: `Bearer ${key}`,
       },
     };
-    axiosInstance.get(`/tours/${id}`, token).then((res) => {
-      setTour(res.data.data.data);
-    });
-  }, [id]);
+    const fetchTour = async () => {
+      try {
+        const res = await axiosInstance.get(`/tours/${id}`, token);
+        setTour(res.data.data.data);
+        // Check if user has already reviewed
+        const alreadyReviewed = res.data.data.data.reviews.some(
+          (r) => r.user?._id === user._id
+        );
+        setHasReviewed(alreadyReviewed);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchTour();
+  }, [id, user]);
 
   const HandleCheckOut = async (id) => {
     setisLoading(true);
     try {
       const res = await axiosInstance.get(`/bookings/checkout-session/${id}`);
-
       window.location.href = res.data.session.url;
+    } catch (error) {
+      console.error("Checkout Error:", error);
+      alert("❌ Failed to initiate checkout");
     } finally {
       setisLoading(false);
+    }
+  };
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    const key = localStorage.getItem("token");
+    try {
+      const res = await axiosInstance.post("/review", {
+        review: reviewText,
+        rating: Number(rating),
+        tour: tour._id,
+        user: user._id,
+      });
+      const updated = await axiosInstance.get(`/tours/${id}`, {
+        headers: {
+          Authorization: `Bearer ${key}`,
+        },
+      });
+      setTour(updated.data.data.data);
+      // setTour((prev) => ({
+      //   ...prev,
+      //   reviews: [...prev.reviews, res.data.data], // if response returns the new review
+      // }));
+      toast.success("✅ Review submitted!");
+
+      setReviewText("");
+      setRating("");
+      console.log(res);
+
+      // const res = await axiosInstance.post("/review", {
+      //   review: reviewText,
+      //   rating: Number(rating),
+      //   tour: tour._id,
+      //   user: user._id,
+      // });
+
+      // Optional: Refresh tour data to update reviews
+    } catch (err) {
+      console.log(err);
+
+      toast.error(err.response?.data?.message || "❌ Failed to submit review");
+    } finally {
+      hasReviewed(true);
     }
   };
 
@@ -165,38 +226,73 @@ const TourDetail = () => {
       <section className="section-map">
         <TourMap locations={tour.locations} />
       </section>
-      this si no simething iY
       <section className="section-reviews">
         <div className="reviews">
-          {tour?.reviews?.map((review, index) => (
-            <div className="reviews__card" key={index}>
-              <div className="reviews__avatar">
-                <img
-                  src={`/img/users/${review.user.photo}`}
-                  alt={review.user.name}
-                  className="reviews__avatar-img"
-                />
-                <h6 className="reviews__user">{review.user.name}</h6>
-              </div>
-              <p className="reviews__text">{review.review}</p>
-              <div className="reviews__rating">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <svg
-                    key={star}
-                    className={`reviews__star ${
-                      review.rating >= star
-                        ? "reviews__star--active"
-                        : "reviews__star--inactive"
-                    }`}
-                  >
-                    <use xlinkHref="/img/icons.svg#icon-star" />
-                  </svg>
-                ))}
-              </div>
-            </div>
-          ))}
+          {tour?.reviews?.map(
+            (review, index) =>
+              review.user ? ( // ✅ only render if user exists
+                <div className="reviews__card" key={review._id || index}>
+                  <div className="reviews__avatar">
+                    <img
+                      src={`/img/users/${review.user.photo || "default.jpg"}`}
+                      alt={review.user.name}
+                      className="reviews__avatar-img"
+                    />
+                    <h6 className="reviews__user">{review.user.name}</h6>
+                  </div>
+                  <p className="reviews__text">{review.review}</p>
+                  <div className="reviews__rating">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <svg
+                        key={star}
+                        className={`reviews__star ${
+                          review.rating >= star
+                            ? "reviews__star--active"
+                            : "reviews__star--inactive"
+                        }`}
+                      >
+                        <use xlinkHref="/img/icons.svg#icon-star" />
+                      </svg>
+                    ))}
+                  </div>
+                </div>
+              ) : null // Skip rendering if review.user is null
+          )}
         </div>
       </section>
+      {user && isBooked && !hasReviewed && (
+        <section className="section-review-form">
+          <div className="review-form">
+            <h2 className="heading-secondary ma-bt-lg">Leave a Review</h2>
+            <form onSubmit={handleSubmitReview}>
+              <textarea
+                className="form__input"
+                rows="4"
+                placeholder="Write your review..."
+                value={reviewText}
+                onChange={(e) => setReviewText(e.target.value)}
+                required
+              />
+              <select
+                className="form__input"
+                value={rating}
+                onChange={(e) => setRating(e.target.value)}
+                required
+              >
+                <option value="">Select rating</option>
+                {[1, 2, 3, 4, 5].map((r) => (
+                  <option key={r} value={r}>
+                    {r} Star{r > 1 && "s"}
+                  </option>
+                ))}
+              </select>
+              <button className="btn btn--green" type="submit">
+                Submit Review
+              </button>
+            </form>
+          </div>
+        </section>
+      )}
       <section className="section-cta">
         <div className="cta">
           {/* Static Logo */}
@@ -223,13 +319,23 @@ const TourDetail = () => {
               {tour.duration} days. 1 adventure. Infinite memories. Make it
               yours today!
             </p>
+
             {user ? (
-              <button
-                className="btn btn--green span-all-rows"
-                onClick={() => HandleCheckOut(tour._id)}
-              >
-                {!isLoading ? "Book tour now!" : "Processing..."}
-              </button>
+              isBooked ? (
+                <button
+                  className="btn btn--green span-all-rows"
+                  disabled={true}
+                >
+                  You have already booked this tour.
+                </button>
+              ) : (
+                <button
+                  className="btn btn--green span-all-rows"
+                  onClick={() => HandleCheckOut(tour._id)}
+                >
+                  {!isLoading ? "Book tour now!" : "Processing..."}
+                </button>
+              )
             ) : (
               <button
                 className="btn btn--green span-all-rows"

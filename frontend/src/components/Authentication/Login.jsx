@@ -16,7 +16,7 @@ const Login = () => {
     const data = { email, password };
 
     axiosInstance
-      .post("http://localhost:3000/api/v1/users/login", data)
+      .post("/users/login", data)
       .then((res) => {
         setUser(res.data.user);
         // console.log("Logged in successfully", res);

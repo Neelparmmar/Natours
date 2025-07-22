@@ -306,6 +306,14 @@ body {
   -webkit-box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 }
+.section-review-form {
+  padding: 4rem 0;
+  background-color: #f7f7f7;
+}
+.review-form {
+  max-width: 600px;
+  margin: auto;
+}
 
 .btn-text:focus {
   outline: none;
@@ -1047,43 +1055,34 @@ body {
 .side-nav {
   list-style: none;
 }
+
 .side-nav li {
   margin: 1rem 0;
-  border-left: 0 solid #fff;
-  -webkit-transition: all 0.3s;
   transition: all 0.3s;
 }
-.side-nav--active,
-.side-nav li:hover {
-  border-left: 4px solid #fff !important;
-}
-.side-nav--active a {
-  -webkit-transform: translateX(-3px);
-  transform: translateX(-3px);
-}
-.side-nav a:link,
-.side-nav a:visited {
+
+.side-nav__link {
   padding: 1rem 4rem;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
   align-items: center;
   color: #fff;
   font-size: 1.5rem;
   text-transform: uppercase;
   font-weight: 400;
   text-decoration: none;
-  -webkit-transition: all 0.3s;
   transition: all 0.3s;
 }
-.side-nav a:hover,
-.side-nav a:active {
-  -webkit-transform: translateX(3px);
+
+.side-nav__link:hover {
   transform: translateX(3px);
 }
-.side-nav svg {
+
+.side-nav__link--active {
+  border-left: 5px solid #fff;
+  transform: translateX(-3px);
+}
+
+.side-nav__link svg {
   height: 1.9rem;
   width: 1.9rem;
   fill: #f7f7f7;
