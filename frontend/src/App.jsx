@@ -56,6 +56,7 @@ function App() {
             <Route path="my-booking" element={<MyBooking />} />
             <Route path="my-reviews" element={<MyReviews />} />
           </Route>
+          <Route path="/my-booking" element={<MyBooking />} />
           {/* <Route path="/user-profile/my-reviews" element={<MyReviews />} /> */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

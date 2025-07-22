@@ -16,13 +16,13 @@ const ReviewRoute = require('./routes/reviewRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
 const bookingController = require('./controllers/bookingController');
 const app = express();
-// app.use(
-//   cors({
-//     origin: "https://sweet-gelato-749fc9.netlify.app",
-//     credentials: true,
-//   })
-// );
-app.use(cors({ origin: true, credentials: true }));
+app.use(
+  cors({
+    origin: 'https://sweet-gelato-749fc9.netlify.app',
+    credentials: true,
+  }),
+);
+// app.use(cors({ origin: true, credentials: true }));
 
 app.use(cookieParser());
 
