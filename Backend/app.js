@@ -3,8 +3,6 @@ const morgan = require('morgan');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
-// const mongoSanitize = require('express-mongo-sanitize');
-// const xss = require('xss-clean');
 const path = require('path');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
@@ -15,27 +13,42 @@ const UserRoute = require('./routes/userRoutes');
 const ReviewRoute = require('./routes/reviewRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
 const bookingController = require('./controllers/bookingController');
+
 const app = express();
+
+const FRONTEND_ORIGIN = 'https://natours-zeta-peach.vercel.app';
+
+// CORS Middleware (allow requests from your frontend only)
 app.use(
   cors({
-    origin: 'https://natours-zeta-peach.vercel.app',
+    origin: FRONTEND_ORIGIN,
     credentials: true,
   }),
 );
 
-// app.use(cors({ origin: true, credentials: true }));
-
+// Cookie parser middleware (only once)
 app.use(cookieParser());
 
-// 1. Set Security HTTP headers
+// Serve static image files from /img with CORS headers allowing frontend access
+app.use(
+  '/img',
+  express.static(path.join(__dirname, 'public', 'img'), {
+    setHeaders: (res, path) => {
+      res.setHeader('Access-Control-Allow-Origin', FRONTEND_ORIGIN);
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin'); // Optional but recommended for cross-origin images
+    },
+  }),
+);
+
+// Security HTTP headers
 app.use(helmet());
 
-// 2. Dev logging
+// Dev logging middleware (only in development)
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// 3. Rate limiter
+// Rate limiter middleware - limit requests to API
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 1000,
@@ -43,19 +56,17 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
+// Webhook for booking checkout
 app.post(
   '/webhook-checkout',
   express.raw({ type: 'application/json' }),
   bookingController.webHooksCheckOut,
 );
-// 4. Body parser, reading data from body into req.body
-app.use(express.json({ limit: '10kb' }));
-app.use(cookieParser());
-// 5. Data sanitization
-// app.use(mongoSanitize());
-// app.use(xss());
 
-// 6. Prevent parameter pollution
+// Body parser middleware: parse JSON body with 10kb limit
+app.use(express.json({ limit: '10kb' }));
+
+// Prevent HTTP parameter pollution
 app.use(
   hpp({
     whitelist: [
@@ -69,37 +80,30 @@ app.use(
   }),
 );
 
-// 7. Set view engine and views path
-app.set('view engine', 'pug'); // or your template engine
+// Set view engine (using Pug here)
+app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
-// 8. Serve static files
+// Serve other static files (like CSS/JS) from /public
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/img/users', (req, res, next) => {
-  res.setHeader(
-    'Access-Control-Allow-Origin',
-    'https://natours-zeta-peach.vercel.app',
-  );
-  next();
-});
-// 9. Test route
+// Test route to render a base template
 app.get('/', (req, res) => {
   res.status(200).render('base');
 });
 
-// 10. Routes
+// API routes
 app.use('/api/v1/tours', TourRoute);
 app.use('/api/v1/users', UserRoute);
 app.use('/api/v1/review', ReviewRoute);
 app.use('/api/v1/bookings', bookingRouter);
 
-// 11. Handle unhandled routes
+// Handle all unhandled routes with 404 error
 app.all('/*any', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
-// 12. Global error handler
+// Global error handling middleware
 app.use(globalErrorHandler);
 
 module.exports = app;
