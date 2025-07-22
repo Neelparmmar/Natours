@@ -8,12 +8,20 @@ import { API_URL } from "./../../utils/config";
 const Header = () => {
   const { user, setUser } = useContext(UserContext);
   useEffect(() => {
-    if (!user) {
-      axiosInstance.get("/users/me").then((res) => {
+    const fetchUser = async () => {
+      try {
+        const res = await axiosInstance.get("/users/me");
         setUser(res.data.data.data);
-      });
+      } catch {
+        setUser(null);
+      }
+    };
+
+    if (!user) {
+      fetchUser();
     }
   }, [user, setUser]);
+
   const handleLogout = async (e) => {
     e.preventDefault();
     try {
