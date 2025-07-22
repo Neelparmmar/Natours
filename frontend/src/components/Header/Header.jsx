@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../Context/userContext";
 import { toast } from "react-toastify";
 import axiosInstance from "./../../utils/axiosInstance";
+import { API_URL } from "./../../utils/config";
 
 const Header = () => {
   const { user, setUser } = useContext(UserContext);
@@ -61,7 +62,7 @@ const Header = () => {
             </Link>
             <Link to="/user-profile" className="nav__el">
               <img
-                src={`/img/users/${user.photo}`}
+                src={`${API_URL}/img/users/${user.photo}`}
                 alt="User photo"
                 className="nav__user-img"
                 style={{ width: "50px", height: "50px" }}
