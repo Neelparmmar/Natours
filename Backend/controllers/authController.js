@@ -19,6 +19,7 @@ const createSendToken = (user, statuscode, res) => {
       Number(process.env.JWT_COOKIE_EXPIRED_IN || 7) * 24 * 60 * 60 * 1000,
     secure: process.env.NODE_ENV === 'production', // Only secure in production
     httpOnly: true,
+    samesite: 'None',
   });
   user.password = undefined;
   res.status(statuscode).json({

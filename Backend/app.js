@@ -76,6 +76,13 @@ app.set('views', path.join(__dirname, 'views'));
 // 8. Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/img/users', (req, res, next) => {
+  res.setHeader(
+    'Access-Control-Allow-Origin',
+    'https://natours-zeta-peach.vercel.app',
+  );
+  next();
+});
 // 9. Test route
 app.get('/', (req, res) => {
   res.status(200).render('base');
