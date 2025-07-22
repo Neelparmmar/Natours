@@ -12,22 +12,27 @@ const signToken = (id) => {
     expiresIn: process.env.JWT_EXPIRED_IN,
   });
 };
-const createSendToken = (user, statuscode, res) => {
+const createSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
-  res.cookie('jwt', token, {
+
+  const cookieOptions = {
     maxAge:
       Number(process.env.JWT_COOKIE_EXPIRED_IN || 7) * 24 * 60 * 60 * 1000,
-    secure: process.env.NODE_ENV === 'production', // Only secure in production
     httpOnly: true,
-    samesite: 'None',
-  });
+    secure: true, // Required in prod for cross-site cookies
+    sameSite: 'None', // Required for cross-site cookies, else they'll be blocked
+  };
+
+  res.cookie('jwt', token, cookieOptions);
+
   user.password = undefined;
-  res.status(statuscode).json({
+  res.status(statusCode).json({
     status: 'success',
     token,
     user,
   });
 };
+
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
