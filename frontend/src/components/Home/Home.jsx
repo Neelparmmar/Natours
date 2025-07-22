@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosInstance";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const [tourData, setTourData] = useState([]);
@@ -76,9 +77,12 @@ const Home = () => {
                 rating ({tour.ratingsQuantity})
               </span>
             </p>
-            <a href={`tours/${tour._id}`} className="btn btn--green btn--small">
+            <Link
+              to={`/tours/${tour._id}`}
+              className="btn btn--green btn--small"
+            >
               Details
-            </a>
+            </Link>
           </div>
         </div>
       ))}
